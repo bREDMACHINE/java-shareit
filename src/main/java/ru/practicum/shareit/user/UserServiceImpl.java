@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     @Override
     public UserDto addUser(UserDto userDto) {
         return UserMapper.toUserDto(userRepository.addUser(UserMapper.toUser(userDto)));
@@ -32,17 +33,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(long userId) {
-        return UserMapper.toUserDto(
-                userRepository.getUser(userId)
-                        .orElseThrow(() -> new NotFoundException("указанный userId не существует"))
-        );
+        return UserMapper.toUserDto(userRepository.getUser(userId).orElseThrow(() -> new NotFoundException("указанный userId не существует")));
     }
 
     @Override
     public List<UserDto> findAllUsers() {
-        return userRepository.findAllUsers().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+        return userRepository.findAllUsers().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override

@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    private long id = 1;
     private final List<User> users = new ArrayList<>();
+    private long id = 1;
 
     @Override
     public User addUser(User createUser) {

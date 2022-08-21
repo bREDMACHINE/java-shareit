@@ -13,6 +13,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     private final List<Item> items = new ArrayList<>();
     private long id = 1;
+
     @Override
     public Item addItem(Item createItem) {
         items.add(createItem);
@@ -52,17 +53,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> searchItems(String text) {
         if (text.isBlank()) {
-            return items.stream()
-                    .filter(Item -> (Item.getName().isBlank()
-                            || Item.getDescription().isBlank())
-                            && Item.getAvailable().equals(true))
-                    .collect(Collectors.toList());
+            return items.stream().filter(Item -> (Item.getName().isBlank() || Item.getDescription().isBlank()) && Item.getAvailable().equals(true)).collect(Collectors.toList());
         } else {
-            return items.stream()
-                    .filter(Item -> (Item.getName().toLowerCase().contains(text.toLowerCase())
-                            || Item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                            && Item.getAvailable().equals(true))
-                    .collect(Collectors.toList());
+            return items.stream().filter(Item -> (Item.getName().toLowerCase().contains(text.toLowerCase()) || Item.getDescription().toLowerCase().contains(text.toLowerCase())) && Item.getAvailable().equals(true)).collect(Collectors.toList());
         }
     }
 }
