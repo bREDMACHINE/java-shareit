@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item updateItem(Item item) {
         for (Item updateItem : items) {
-            if (updateItem.getId() == item.getId()) {
+            if (Objects.equals(updateItem.getId(), item.getId())) {
                 updateItem.setName(item.getName());
                 updateItem.setDescription(item.getDescription());
                 updateItem.setAvailable(item.getAvailable());
