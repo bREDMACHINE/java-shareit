@@ -19,7 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
     public User addUser(User createUser) {
         for (User user : users) {
             if (Objects.equals(user.getEmail(), createUser.getEmail())) {
-                throw new ValidationException("такой емэйл уже есть");
+                throw new ValidationException("указанная электронная почта уже используется");
             }
         }
         createUser.setId(id);
@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
     public User updateUser(User user) {
         for (User updateUser : users) {
             if (Objects.equals(user.getEmail(), updateUser.getEmail()) && user.getId() != updateUser.getId()) {
-                throw new ValidationException("такой емэйл уже есть");
+                throw new ValidationException("указанная электронная почта уже используется");
             }
         }
         for (User updateUser : users) {
