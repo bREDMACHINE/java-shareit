@@ -1,47 +1,37 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.Hibernate;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "bookings", schema = "public")
+@Table(name = "requests", schema = "public")
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Booking {
+public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id")
+    @Column(name = "request_id")
     Long id;
-    @Column(name = "booking_start")
-    LocalDateTime start;
-    @Column(name = "booking_end")
-    LocalDateTime end;
+    String description;
     @ManyToOne
-    @JoinColumn(name = "item_id")
-    Item item;
-    @ManyToOne
-    @JoinColumn(name = "booker_id")
-    User booker;
-    @Enumerated(EnumType.STRING)
-    Status status;
+    @JoinColumn(name = "requester_id")
+    User requester;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Booking booking = (Booking) o;
-        return id != null && Objects.equals(id, booking.id);
+        ItemRequest that = (ItemRequest) o;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override

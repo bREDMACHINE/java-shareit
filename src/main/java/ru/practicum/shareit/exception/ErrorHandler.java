@@ -11,19 +11,25 @@ import java.util.Map;
 @ControllerAdvice("ru.practicum.shareit")
 public class ErrorHandler {
 
+
     @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleNotFoundException(final NotFoundException e) {
-        return new ResponseEntity<>(
-                Map.of("NotFound Error", e.getMessage()),
-                HttpStatus.NOT_FOUND
-        );
+    public ResponseEntity<ErrorResponse> handleError(final IllegalArgumentException e) {
+        return new ResponseEntity<>(new ErrorResponse("Unknown state: UNSUPPORTED_STATUS"), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleNegativeValidation(ValidationException e) {
-        return new ResponseEntity<>(
-                Map.of("Validation Error", e.getMessage()),
-                HttpStatus.CONFLICT
-        );
+    public ResponseEntity<Map<String, String>> handleBadRequestException(final BadRequestException e) {
+        return new ResponseEntity<>(Map.of("Bad Request", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleNotFoundException(final NotFoundException e) {
+        return new ResponseEntity<>(Map.of("NotFound Error", e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleNegativeValidation(final ValidationException e) {
+        return new ResponseEntity<>(Map.of("Validation Error", e.getMessage()), HttpStatus.CONFLICT);
+    }
+
 }

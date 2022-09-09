@@ -2,47 +2,51 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserDto addUser(UserDto userDto) {
-        return UserMapper.toUserDto(userRepository.addUser(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(long userId, UserDto userDto) {
-        UserDto updateUser = getUser(userId);
+        User updateUser = UserMapper.toUser(getUser(userId));
         if (userDto.getName() != null) {
             updateUser.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
             updateUser.setEmail(userDto.getEmail());
         }
-        return UserMapper.toUserDto(userRepository.updateUser(UserMapper.toUser(updateUser)));
+        return UserMapper.toUserDto(userRepository.save(updateUser));
     }
 
     @Override
     public UserDto getUser(long userId) {
-        return UserMapper.toUserDto(userRepository.getUser(userId).orElseThrow(() -> new NotFoundException("указанный userId не существует")));
+        return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Указанный userId не существует")));
     }
 
     @Override
     public List<UserDto> findAllUsers() {
-        return userRepository.findAllUsers().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public void deleteUser(long userId) {
-        userRepository.deleteUser(UserMapper.toUser(getUser(userId)));
+        userRepository.delete(UserMapper.toUser(getUser(userId)));
     }
 }
