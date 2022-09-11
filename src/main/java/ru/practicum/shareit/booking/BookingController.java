@@ -2,16 +2,18 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
+import ru.practicum.shareit.exception.ErrorResponse;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/bookings")
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
 public class BookingController {
 
@@ -41,7 +43,8 @@ public class BookingController {
     @GetMapping()
     public List<BookingOutDto> getStateBooker(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam(required = false, defaultValue = "ALL") String state) {
-        State stateEnum = State.valueOf(state);
+
+        State stateEnum = check(state);
         log.info("Получен Get запрос к эндпоинту /bookings");
         return bookingService.getStateBooker(userId, stateEnum);
     }
@@ -49,8 +52,16 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingOutDto> getStateOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @RequestParam(required = false, defaultValue = "ALL") String state) {
-        State stateEnum = State.valueOf(state);
+        State stateEnum = check(state);
         log.info("Получен Get запрос к эндпоинту /bookings/owner");
         return bookingService.getStateOwner(userId, stateEnum);
+    }
+
+    private static State check(String stateString) {
+        try {
+            return State.valueOf(stateString);
+        } catch (IllegalArgumentException e) {
+            throw new ErrorResponse("Unknown state: " + stateString);
+        }
     }
 }

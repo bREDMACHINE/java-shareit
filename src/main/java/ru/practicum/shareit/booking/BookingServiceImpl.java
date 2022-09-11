@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -39,14 +40,14 @@ public class BookingServiceImpl implements BookingService {
             Booking booking = BookingMapper.toBooking(bookingDto, item, user, Status.WAITING);
             return BookingMapper.toBookingDto(bookingRepository.save(booking));
         } else {
-            throw new BadRequestException("Не правильный запрос на бронирование");
+            throw new BadRequestException("Неправильный запрос на бронирование");
         }
     }
 
     @Transactional
     @Override
     public BookingOutDto updateStatus(long userId, long bookingId, boolean approved) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("указанный bookingId не существует"));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Указанный bookingId не существует"));
         if (!booking.getStatus().equals(Status.WAITING)) {
             throw new BadRequestException("Невозможно повторное изменение статуса");
         }

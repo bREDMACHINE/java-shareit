@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -24,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
@@ -84,9 +85,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItems(long userId, String text) {
         if (text.isBlank()) {
-            return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text).stream().filter(Item::getAvailable).filter(Item -> Item.getName().isBlank()).filter(Item -> Item.getDescription().isBlank()).map(ItemMapper::toItemDto).collect(Collectors.toList());
+            return itemRepository.search(text).stream().filter(Item::getAvailable).filter(Item -> Item.getName().isBlank()).filter(Item -> Item.getDescription().isBlank()).map(ItemMapper::toItemDto).collect(Collectors.toList());
         }
-        return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text).stream().filter(Item::getAvailable).map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.search(text).stream().filter(Item::getAvailable).map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Transactional

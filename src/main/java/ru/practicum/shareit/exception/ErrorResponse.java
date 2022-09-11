@@ -7,6 +7,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @ToString
-public class ErrorResponse {
-    String error;
+public class ErrorResponse extends IllegalArgumentException {
+    private String error;
 }

@@ -13,8 +13,8 @@ public class ErrorHandler {
 
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleError(final IllegalArgumentException e) {
-        return new ResponseEntity<>(new ErrorResponse("Unknown state: UNSUPPORTED_STATUS"), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleError(final ErrorResponse e) {
+        return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
