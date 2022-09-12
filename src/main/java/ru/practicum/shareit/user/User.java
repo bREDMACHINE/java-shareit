@@ -1,46 +1,36 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.Hibernate;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.util.Objects;
 
-
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Item {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
+    @Column(name = "user_id")
     Long id;
-    @Column(name = "item_name")
+    @Column(name = "user_name")
     String name;
-    String description;
-    @Column(name = "is_available")
-    Boolean available;
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    User owner;
-    @ManyToOne
-    @JoinColumn(name = "request_id")
-    ItemRequest request;
+    @Column(name = "email")
+    String email;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
     }
 
     @Override
