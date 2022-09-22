@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(long userId, UserDto userDto) {
-        User updateUser = UserMapper.toUser(getUser(userId));
+        User updateUser = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Указанный userId не существует"));
         if (userDto.getName() != null) {
             updateUser.setName(userDto.getName());
         }
@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(long userId) {
-        userRepository.delete(UserMapper.toUser(getUser(userId)));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Указанный userId не существует"));
+        userRepository.delete(user);
     }
 }

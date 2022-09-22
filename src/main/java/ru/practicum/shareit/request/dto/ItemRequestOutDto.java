@@ -4,19 +4,21 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemRequestDto {
+public class ItemRequestOutDto {
     Long id;
     @NotBlank
     String description;
     Long requesterId;
-    @DateTimeFormat(pattern = "YYYY-MM-DDTHH:mm:ss")
     LocalDateTime created;
+    List<ItemDto> items = new ArrayList<>();
 }

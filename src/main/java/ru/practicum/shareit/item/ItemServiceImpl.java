@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -33,12 +35,20 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
     @Override
     public ItemDto addItem(Long userId, ItemDto itemDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Указанный userId не существует"));
-        Item item = ItemMapper.toItem(itemDto, user);
+        Item item;
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Указанный requestId не существует"));
+            item = ItemMapper.toItem(itemDto, user, itemRequest);
+        } else {
+            item = ItemMapper.toItem(itemDto, user);
+        }
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
