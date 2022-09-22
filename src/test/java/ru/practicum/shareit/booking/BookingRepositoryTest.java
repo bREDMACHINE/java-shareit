@@ -68,7 +68,7 @@ class BookingRepositoryTest {
 
     @Test
     void findByItemOwnerIdOrderByStartDesc_ok() {
-        List<Booking> bookingsCheck = bookingRepository.findByItemOwnerIdOrderByStartDesc(1L, PageRequest.of(0, 100));
+        List<Booking> bookingsCheck = bookingRepository.findByItemOwnerIdOrderByStartDesc(booking2.getItem().getOwner().getId(), PageRequest.of(0, 100));
         assertNotNull(bookingsCheck);
         assertThat(2, equalTo(bookingsCheck.size()));
         assertThat(bookingsCheck.get(0).getId(), equalTo(booking2.getId()));
