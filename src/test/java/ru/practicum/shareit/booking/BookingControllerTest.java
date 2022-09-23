@@ -39,7 +39,7 @@ class BookingControllerTest {
             LocalDateTime.of(2022, 9, 29, 20, 15,15), new BookingOutDto.ItemForBookingOutDto(1L, "nameUser1"), new BookingOutDto.UserForBookingOutDto(2L), Status.APPROVED);
 
     @Test
-    void createBooking() throws Exception {
+    void createBooking_ok() throws Exception {
         when(bookingService.createBooking(2L, bookingDto2)).thenReturn(bookingDto2);
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDto2))
@@ -56,7 +56,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void updateStatus() throws Exception {
+    void updateStatus_ok() throws Exception {
         when(bookingService.updateStatus(1L, 2L, true)).thenReturn(bookingOutDto2);
         mvc.perform(patch("/bookings/2")
                         .content(mapper.writeValueAsString(bookingDto2))
@@ -75,7 +75,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getStatus() throws Exception {
+    void getStatus_ok() throws Exception {
         when(bookingService.getStatus(2L, 2L)).thenReturn(bookingOutDto2);
         mvc.perform(get("/bookings/2")
                         .header("X-Sharer-User-Id", "2"))
@@ -89,7 +89,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getStateBooker() throws Exception {
+    void getStateBooker_ok() throws Exception {
         when(bookingService.getStateBooker(2L, State.FUTURE, PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
         mvc.perform(get("/bookings")
                         .param("state", "FUTURE")
@@ -106,7 +106,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getStateOwner() throws Exception {
+    void getStateOwner_ok() throws Exception {
         when(bookingService.getStateBooker(1L, State.FUTURE, PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
         mvc.perform(get("/bookings")
                         .param("state", "FUTURE")

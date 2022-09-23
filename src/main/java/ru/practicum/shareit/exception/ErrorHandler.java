@@ -26,10 +26,4 @@ public class ErrorHandler {
     public ResponseEntity<Map<String, String>> handleNotFoundException(final NotFoundException e) {
         return new ResponseEntity<>(Map.of("NotFound Error", e.getMessage()), HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleNegativeValidation(final ValidationException e) {
-        return new ResponseEntity<>(Map.of("Validation Error", e.getMessage()), HttpStatus.CONFLICT);
-    }
-
 }

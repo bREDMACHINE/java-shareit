@@ -56,6 +56,11 @@ class ItemServiceTest {
             "DescriptionItemRequest1", user2,
             LocalDateTime.of(2022, 9, 18, 18, 15,15));
     private final Item item1 = new Item(1L, "nameItem1", "descriptionItem1", true, user1, itemRequest1);
+    private final Item item2 = new Item(2L, "nameItem2", "descriptionItem2", true, user2, null);
+    private final Item item3 = new Item(3L, "nameItem3", " ", true, user2, null);
+    private final Item item4 = new Item(4L, " ", "descriptionItem4", true, user2, null);
+    private final Item item5 = new Item(5L, "nameItem5", "descriptionItem4", false, user2, null);
+    private final ItemDto itemDto2 = new ItemDto(2L, "nameItem2", "descriptionItem2", true, null);
     private final ItemDto itemDto1 = new ItemDto(1L, "nameItem1", "descriptionItem1", true, 1L);
     private final ItemDto updateItemDto1 = new ItemDto(1L, "updateNameItem1", "updateDescriptionItem1", true, 1L);
     private final Item updateItem1 = new Item(1L, "updateNameItem1", "updateDescriptionItem1", true, user1, itemRequest1);
@@ -88,6 +93,20 @@ class ItemServiceTest {
     }
 
     @Test
+    void addItemWithoutRequesterId_ok() {
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRepository.save(item2)).thenReturn(item2);
+        ItemDto itemDtoCheck = itemService.addItem(2L, itemDto2);
+        assertThat(itemDtoCheck.getId(), equalTo(itemDto2.getId()));
+        assertThat(itemDtoCheck.getName(), equalTo(itemDto2.getName()));
+        assertThat(itemDtoCheck.getDescription(), equalTo(itemDto2.getDescription()));
+        assertThat(itemDtoCheck.getAvailable(), equalTo(itemDto2.getAvailable()));
+        assertThat(itemDtoCheck.getRequestId(), equalTo(itemDto2.getRequestId()));
+        verify(userRepository).findById(2L);
+        verify(itemRepository).save(item2);
+    }
+
+    @Test
     void updateItem_ok() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
@@ -104,7 +123,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void getItem_ok() {
+    void getItemOwner_ok() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
         when(commentRepository.findAllByItemId(1L)).thenReturn(List.of(comment1, comment2));
@@ -126,6 +145,25 @@ class ItemServiceTest {
         verify(commentRepository).findAllByItemId(1L);
         verify(bookingRepository).findFirstByItemIdAndStartBeforeAndStatus(eq(1L), ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(bookingRepository).findFirstByItemIdAndStartAfterAndStatus(eq(1L), ArgumentMatchers.any(), ArgumentMatchers.any());
+    }
+
+    @Test
+    void getItemOther_ok() {
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
+        when(commentRepository.findAllByItemId(1L)).thenReturn(List.of(comment1, comment2));
+        ItemOutDto itemOutDtoCheck = itemService.getItem(2L, 1L);
+        assertThat(itemOutDtoCheck.getId(), equalTo(itemOutDto.getId()));
+        assertThat(itemOutDtoCheck.getName(), equalTo(itemOutDto.getName()));
+        assertThat(itemOutDtoCheck.getDescription(), equalTo(itemOutDto.getDescription()));
+        assertThat(itemOutDtoCheck.getAvailable(), equalTo(itemOutDto.getAvailable()));
+        assertThat(itemOutDtoCheck.getComments(), equalTo(itemOutDto.getComments()));
+        assertThat(itemOutDtoCheck.getNextBooking(), equalTo(null));
+        assertThat(itemOutDtoCheck.getLastBooking(), equalTo(null));
+        assertThat(itemOutDtoCheck.getComments(),equalTo(itemOutDto.getComments()));
+        verify(userRepository).findById(2L);
+        verify(itemRepository).findById(1L);
+        verify(commentRepository).findAllByItemId(1L);
     }
 
     @Test
@@ -165,6 +203,30 @@ class ItemServiceTest {
         assertThat(itemDtoListCheck.get(0).getAvailable(), equalTo(itemDto1.getAvailable()));
         assertThat(itemDtoListCheck.get(0).getRequestId(), equalTo(itemDto1.getRequestId()));
         verify(itemRepository).search("text");
+    }
+
+    @Test
+    void searchItemsIsBlankDescription() {
+        when(itemRepository.search(" ")).thenReturn(List.of(item3));
+        List<ItemDto> itemDtoListCheck = itemService.searchItems(1L, " ");
+        assertThat(itemDtoListCheck.size(), equalTo(0));
+        verify(itemRepository).search(" ");
+    }
+
+    @Test
+    void searchItemsIsBlankName() {
+        when(itemRepository.search(" ")).thenReturn(List.of(item4));
+        List<ItemDto> itemDtoListCheck = itemService.searchItems(1L, " ");
+        assertThat(itemDtoListCheck.size(), equalTo(0));
+        verify(itemRepository).search(" ");
+    }
+
+    @Test
+    void searchItemsNotAvailable() {
+        when(itemRepository.search(" ")).thenReturn(List.of(item5));
+        List<ItemDto> itemDtoListCheck = itemService.searchItems(1L, " ");
+        assertThat(itemDtoListCheck.size(), equalTo(0));
+        verify(itemRepository).search(" ");
     }
 
     @Test
