@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemOutDto;
@@ -60,8 +63,10 @@ class ItemServiceTest {
     private final Item item3 = new Item(3L, "nameItem3", " ", true, user2, null);
     private final Item item4 = new Item(4L, " ", "descriptionItem4", true, user2, null);
     private final Item item5 = new Item(5L, "nameItem5", "descriptionItem4", false, user2, null);
-    private final ItemDto itemDto2 = new ItemDto(2L, "nameItem2", "descriptionItem2", true, null);
     private final ItemDto itemDto1 = new ItemDto(1L, "nameItem1", "descriptionItem1", true, 1L);
+    private final ItemDto itemDto2 = new ItemDto(2L, "nameItem2", "descriptionItem2", true, null);
+    private final ItemDto itemDto3 = new ItemDto(3L, "nameItem3", "descriptionItem3", true, 100L);
+    private final ItemDto itemDto4 = new ItemDto(4L, null, null, null, 1L);
     private final ItemDto updateItemDto1 = new ItemDto(1L, "updateNameItem1", "updateDescriptionItem1", true, 1L);
     private final Item updateItem1 = new Item(1L, "updateNameItem1", "updateDescriptionItem1", true, user1, itemRequest1);
     private final Comment comment1 = new Comment(1L, "comment1", item1, user2, LocalDateTime.of(2022, 9, 19, 18, 15,15));
@@ -107,6 +112,28 @@ class ItemServiceTest {
     }
 
     @Test
+    void addItemNotFoundRequesterId_error() {
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRequestRepository.findById(100L)).thenReturn(Optional.empty());
+        final NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                () -> itemService.addItem(2L, itemDto3));
+        Assertions.assertEquals("Указанный requestId не существует", exception.getMessage());
+        verify(userRepository).findById(2L);
+        verify(itemRequestRepository).findById(100L);
+    }
+
+    @Test
+    void addItemNotFoundUserId_error() {
+        when(userRepository.findById(100L)).thenReturn(Optional.empty());
+        final NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                () -> itemService.addItem(100L, itemDto3));
+        Assertions.assertEquals("Указанный userId не существует", exception.getMessage());
+        verify(userRepository).findById(100L);
+    }
+
+    @Test
     void updateItem_ok() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
@@ -120,6 +147,34 @@ class ItemServiceTest {
         verify(userRepository).findById(1L);
         verify(itemRepository).findById(1L);
         verify(itemRepository).save(updateItem1);
+    }
+
+    @Test
+    void updateItemWithNull_ok() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
+        when(itemRepository.save(item1)).thenReturn(item1);
+        ItemDto itemDtoCheck = itemService.updateItem(1L, 1L, itemDto4);
+        assertThat(itemDtoCheck.getId(), equalTo(item1.getId()));
+        assertThat(itemDtoCheck.getName(), equalTo(item1.getName()));
+        assertThat(itemDtoCheck.getDescription(), equalTo(item1.getDescription()));
+        assertThat(itemDtoCheck.getAvailable(), equalTo(item1.getAvailable()));
+        assertThat(itemDtoCheck.getRequestId(), equalTo(itemDto4.getRequestId()));
+        verify(userRepository).findById(1L);
+        verify(itemRepository).findById(1L);
+        verify(itemRepository).save(item1);
+    }
+
+    @Test
+    void updateItemNotFoundOwner_error() {
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
+        final NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                () -> itemService.updateItem(2L, 1L, itemDto1));
+        Assertions.assertEquals("userId не является владельцем, недоступно изменение параметров", exception.getMessage());
+        verify(userRepository).findById(2L);
+        verify(itemRepository).findById(1L);
     }
 
     @Test
@@ -244,5 +299,20 @@ class ItemServiceTest {
         verify(itemRepository).findById(1L);
         verify(bookingRepository).findFirstByBookerIdAndItemIdAndEndBefore(eq(2L), eq(1L), ArgumentMatchers.any());
         verify(commentRepository).save(comment1);
+    }
+
+    @Test
+    void addCommentBadRequest_error() {
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
+        when(bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(eq(2L), eq(1L), ArgumentMatchers.any()))
+                .thenReturn(Optional.empty());
+        final BadRequestException exception = Assertions.assertThrows(
+                BadRequestException.class,
+                () -> itemService.addComment(2L, 1L, commentDto1));
+        Assertions.assertEquals("Добавление комментариев недоступно", exception.getMessage());
+        verify(userRepository).findById(2L);
+        verify(itemRepository).findById(1L);
+        verify(bookingRepository).findFirstByBookerIdAndItemIdAndEndBefore(eq(2L), eq(1L), ArgumentMatchers.any());
     }
 }
