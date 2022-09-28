@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestOutDto;
+import ru.practicum.shareit.request.service.ItemRequestServiceCreate;
+import ru.practicum.shareit.request.service.ItemRequestServiceRead;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -21,26 +23,28 @@ import java.util.List;
 @Slf4j
 @Validated
 public class ItemRequestController {
-    private final ItemRequestService itemRequestService;
+
+    private final ItemRequestServiceCreate itemRequestServiceCreate;
+    private final ItemRequestServiceRead itemRequestServiceRead;
 
     @PostMapping
     public ItemRequestDto addItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                   @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Получен Post запрос к эндпоинту /requests");
-        return itemRequestService.addItemRequest(userId, itemRequestDto);
+        return itemRequestServiceCreate.addItemRequest(userId, itemRequestDto);
     }
 
     @GetMapping
     public List<ItemRequestOutDto> findRequestsByUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получен Get запрос к эндпоинту /requests");
-        return itemRequestService.findRequestsByUserId(userId);
+        return itemRequestServiceRead.findRequestsByUserId(userId);
     }
 
     @GetMapping("/{requestId}")
     public ItemRequestOutDto getRequest(@RequestHeader("X-Sharer-User-Id") long userId,
                                      @PathVariable long requestId) {
         log.info("Получен Get запрос к эндпоинту /requests/{}", requestId);
-        return itemRequestService.getRequest(userId, requestId);
+        return itemRequestServiceRead.getRequest(userId, requestId);
     }
 
     @GetMapping("/all")
@@ -49,6 +53,6 @@ public class ItemRequestController {
                                                 @RequestParam(required = false, defaultValue = "100") @Positive int size) {
         log.info("Получен Get запрос к эндпоинту /requests/all");
         Pageable pageable = PageRequest.of(from / size, size);
-        return itemRequestService.findAllRequests(userId, pageable);
+        return itemRequestServiceRead.findAllRequests(userId, pageable);
     }
 }

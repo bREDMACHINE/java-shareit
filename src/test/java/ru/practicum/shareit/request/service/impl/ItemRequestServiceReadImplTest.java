@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +9,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestOutDto;
+import ru.practicum.shareit.request.service.ItemRequestServiceRead;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -25,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ItemRequestServiceTest {
+class ItemRequestServiceReadImplTest {
 
-    private ItemRequestService itemRequestService;
+    private ItemRequestServiceRead itemRequestServiceRead;
     @Mock
     private ItemRequestRepository itemRequestRepository;
     @Mock
@@ -37,7 +40,7 @@ class ItemRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, userRepository, itemRepository);
+        itemRequestServiceRead = new ItemRequestServiceReadImpl(itemRequestRepository, userRepository, itemRepository);
     }
 
     private final ItemRequestDto itemRequestDto1 = new ItemRequestDto(1L,
@@ -47,26 +50,12 @@ class ItemRequestServiceTest {
     private final User user2 = new User(2L, "nameUser2", "email@User2");
 
     @Test
-    void addItemRequest_ok() {
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
-        when(itemRequestRepository.save(ItemRequestMapper.toItemRequest(itemRequestDto1, user2)))
-                .thenReturn(ItemRequestMapper.toItemRequest(itemRequestDto1, user2));
-        ItemRequestDto itemRequestDtoCheck = itemRequestService.addItemRequest(2,itemRequestDto1);
-        assertThat(itemRequestDtoCheck.getId(), equalTo(itemRequestDto1.getId()));
-        assertThat(itemRequestDtoCheck.getRequesterId(), equalTo(itemRequestDto1.getRequesterId()));
-        assertThat(itemRequestDtoCheck.getDescription(), equalTo(itemRequestDto1.getDescription()));
-        assertThat(itemRequestDtoCheck.getCreated(), equalTo(itemRequestDto1.getCreated()));
-        verify(userRepository).findById(2L);
-        verify(itemRequestRepository).save(ItemRequestMapper.toItemRequest(itemRequestDto1, user2));
-    }
-
-    @Test
     void findRequestsByUserId_ok() {
         when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
         when(itemRequestRepository.findByRequesterId(2L))
                 .thenReturn(List.of(ItemRequestMapper.toItemRequest(itemRequestDto1, user2)));
         when(itemRequestRepository.findById(1L)).thenReturn(Optional.of(ItemRequestMapper.toItemRequest(itemRequestDto1, user2)));
-        List<ItemRequestOutDto> itemRequestList = itemRequestService.findRequestsByUserId(2L);
+        List<ItemRequestOutDto> itemRequestList = itemRequestServiceRead.findRequestsByUserId(2L);
         assertNotNull(itemRequestList);
         assertEquals(1, itemRequestList.size());
         verify(userRepository, times(2)).findById(2L);
@@ -78,7 +67,7 @@ class ItemRequestServiceTest {
     void getRequest_ok() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(itemRequestRepository.findById(1L)).thenReturn(Optional.of(ItemRequestMapper.toItemRequest(itemRequestDto1, user2)));
-        ItemRequestOutDto itemRequestCheck = itemRequestService.getRequest(1L, 1L);
+        ItemRequestOutDto itemRequestCheck = itemRequestServiceRead.getRequest(1L, 1L);
         assertThat(itemRequestCheck.getId(), equalTo(itemRequestDto1.getId()));
         assertThat(itemRequestCheck.getRequesterId(), equalTo(itemRequestDto1.getRequesterId()));
         assertThat(itemRequestCheck.getDescription(), equalTo(itemRequestDto1.getDescription()));
@@ -94,7 +83,7 @@ class ItemRequestServiceTest {
         when(itemRequestRepository.findAll(pageable))
                 .thenReturn(new PageImpl<>(List.of(ItemRequestMapper.toItemRequest(itemRequestDto1, user2))));
         when(itemRequestRepository.findById(1L)).thenReturn(Optional.of(ItemRequestMapper.toItemRequest(itemRequestDto1, user2)));
-        List<ItemRequestOutDto> itemRequestList = itemRequestService.findAllRequests(1L, pageable);
+        List<ItemRequestOutDto> itemRequestList = itemRequestServiceRead.findAllRequests(1L, pageable);
         assertNotNull(itemRequestList);
         assertEquals(1, itemRequestList.size());
         verify(userRepository, times(2)).findById(1L);

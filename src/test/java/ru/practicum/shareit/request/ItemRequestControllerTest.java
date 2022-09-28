@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestOutDto;
+import ru.practicum.shareit.request.service.ItemRequestServiceCreate;
+import ru.practicum.shareit.request.service.ItemRequestServiceRead;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -27,7 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ItemRequestControllerTest {
 
     @MockBean
-    ItemRequestService itemRequestService;
+    ItemRequestServiceRead itemRequestServiceRead;
+    @MockBean
+    ItemRequestServiceCreate itemRequestServiceCreate;
 
     @Autowired
     MockMvc mvc;
@@ -44,7 +48,7 @@ class ItemRequestControllerTest {
 
     @Test
     void addItem_ok() throws Exception {
-        when(itemRequestService.addItemRequest(2L, itemRequestDto1)).thenReturn(itemRequestDto1);
+        when(itemRequestServiceCreate.addItemRequest(2L, itemRequestDto1)).thenReturn(itemRequestDto1);
 
         mvc.perform(post("/requests")
                 .content(mapper.writeValueAsString(itemRequestDto1))
@@ -58,12 +62,12 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.requesterId", is(itemRequestDto1.getRequesterId()), Long.class))
                 .andExpect(jsonPath("$.created", is(itemRequestDto1.getCreated().toString())));
 
-        verify(itemRequestService).addItemRequest(2L, itemRequestDto1);
+        verify(itemRequestServiceCreate).addItemRequest(2L, itemRequestDto1);
     }
 
     @Test
     void findRequestsByUserId_ok() throws Exception {
-        when(itemRequestService.findRequestsByUserId(2L)).thenReturn(List.of(itemRequestOutDto1));
+        when(itemRequestServiceRead.findRequestsByUserId(2L)).thenReturn(List.of(itemRequestOutDto1));
 
         mvc.perform(get("/requests")
                 .header("X-Sharer-User-Id", "2"))
@@ -73,12 +77,12 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].requesterId", is(itemRequestOutDto1.getRequesterId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(itemRequestOutDto1.getCreated().toString())))
                 .andExpect(jsonPath("$[0].items", is(itemRequestOutDto1.getItems())));
-        verify(itemRequestService).findRequestsByUserId(2L);
+        verify(itemRequestServiceRead).findRequestsByUserId(2L);
     }
 
     @Test
     void getRequest_ok() throws Exception {
-        when(itemRequestService.getRequest(2L, 1L)).thenReturn(itemRequestOutDto1);
+        when(itemRequestServiceRead.getRequest(2L, 1L)).thenReturn(itemRequestOutDto1);
 
         mvc.perform(get("/requests/1")
                 .header("X-Sharer-User-Id", "2"))
@@ -89,12 +93,12 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.created", is(itemRequestDto1.getCreated().toString())))
                 .andExpect(jsonPath("$.items", is(itemRequestOutDto1.getItems())));
 
-        verify(itemRequestService).getRequest(2L, 1L);
+        verify(itemRequestServiceRead).getRequest(2L, 1L);
     }
 
     @Test
     void findAllRequests_ok() throws Exception {
-        when(itemRequestService.findAllRequests(2L, PageRequest.of(0,100))).thenReturn(List.of(itemRequestOutDto1));
+        when(itemRequestServiceRead.findAllRequests(2L, PageRequest.of(0,100))).thenReturn(List.of(itemRequestOutDto1));
 
         mvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", "2")
@@ -106,6 +110,6 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].requesterId", is(itemRequestOutDto1.getRequesterId()), Long.class))
                 .andExpect(jsonPath("$[0].created", is(itemRequestOutDto1.getCreated().toString())))
                 .andExpect(jsonPath("$[0].items", is(itemRequestOutDto1.getItems())));
-        verify(itemRequestService).findAllRequests(2L, PageRequest.of(0,100));
+        verify(itemRequestServiceRead).findAllRequests(2L, PageRequest.of(0,100));
     }
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +9,10 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestOutDto;
+import ru.practicum.shareit.request.service.ItemRequestServiceRead;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -21,19 +23,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional(readOnly = true)
-public class ItemRequestServiceImpl implements ItemRequestService {
+public class ItemRequestServiceReadImpl implements ItemRequestServiceRead {
 
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-
-    @Transactional
-    @Override
-    public ItemRequestDto addItemRequest(long userId, ItemRequestDto itemRequestDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Указанный userId не существует"));
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
-        return ItemRequestMapper.toItemRequestDto(itemRequestRepository.save(itemRequest));
-    }
 
     @Override
     public List<ItemRequestOutDto> findRequestsByUserId(long userId) {

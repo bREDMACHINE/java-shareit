@@ -10,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
+import ru.practicum.shareit.booking.service.BookingServiceCreate;
+import ru.practicum.shareit.booking.service.BookingServiceRead;
+import ru.practicum.shareit.booking.service.BookingServiceUpdate;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -27,7 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookingControllerTest {
 
     @MockBean
-    BookingService bookingService;
+    BookingServiceCreate bookingServiceCreate;
+    @MockBean
+    BookingServiceUpdate bookingServiceUpdate;
+    @MockBean
+    BookingServiceRead bookingServiceRead;
     @Autowired
     MockMvc mvc;
     @Autowired
@@ -40,7 +47,7 @@ class BookingControllerTest {
 
     @Test
     void createBooking_ok() throws Exception {
-        when(bookingService.createBooking(2L, bookingDto2)).thenReturn(bookingDto2);
+        when(bookingServiceCreate.createBooking(2L, bookingDto2)).thenReturn(bookingDto2);
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDto2))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -52,12 +59,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.start", is(bookingDto2.getStart().toString())))
                 .andExpect(jsonPath("$.end", is(bookingDto2.getEnd().toString())))
                 .andExpect(jsonPath("$.itemId", is(bookingDto2.getItemId()), Long.class));
-        verify(bookingService).createBooking(2L, bookingDto2);
+        verify(bookingServiceCreate).createBooking(2L, bookingDto2);
     }
 
     @Test
     void updateStatus_ok() throws Exception {
-        when(bookingService.updateStatus(1L, 2L, true)).thenReturn(bookingOutDto2);
+        when(bookingServiceUpdate.updateStatus(1L, 2L, true)).thenReturn(bookingOutDto2);
         mvc.perform(patch("/bookings/2")
                         .content(mapper.writeValueAsString(bookingDto2))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -71,12 +78,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.end", is(bookingOutDto2.getEnd().toString())))
                 .andExpect(jsonPath("$.item.id", is(bookingOutDto2.getItem().getId()), Long.class))
                 .andExpect(jsonPath("$.booker.id", is(bookingOutDto2.getBooker().getId()), Long.class));
-        verify(bookingService).updateStatus(1L, 2L, true);
+        verify(bookingServiceUpdate).updateStatus(1L, 2L, true);
     }
 
     @Test
     void getStatus_ok() throws Exception {
-        when(bookingService.getStatus(2L, 2L)).thenReturn(bookingOutDto2);
+        when(bookingServiceRead.getStatus(2L, 2L)).thenReturn(bookingOutDto2);
         mvc.perform(get("/bookings/2")
                         .header("X-Sharer-User-Id", "2"))
                 .andExpect(status().isOk())
@@ -85,12 +92,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.end", is(bookingOutDto2.getEnd().toString())))
                 .andExpect(jsonPath("$.item.id", is(bookingOutDto2.getItem().getId()), Long.class))
                 .andExpect(jsonPath("$.booker.id", is(bookingOutDto2.getBooker().getId()), Long.class));
-        verify(bookingService).getStatus(2L, 2L);
+        verify(bookingServiceRead).getStatus(2L, 2L);
     }
 
     @Test
     void getStateBooker_ok() throws Exception {
-        when(bookingService.getStateBooker(2L, State.FUTURE, PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
+        when(bookingServiceRead.getStateBooker(2L, "FUTURE", PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
         mvc.perform(get("/bookings")
                         .param("state", "FUTURE")
                         .param("from", "0")
@@ -102,12 +109,12 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].end", is(bookingOutDto2.getEnd().toString())))
                 .andExpect(jsonPath("$.[0].item.id", is(bookingOutDto2.getItem().getId()), Long.class))
                 .andExpect(jsonPath("$.[0].booker.id", is(bookingOutDto2.getBooker().getId()), Long.class));
-        verify(bookingService).getStateBooker(2L, State.FUTURE, PageRequest.of(0, 100));
+        verify(bookingServiceRead).getStateBooker(2L, "FUTURE", PageRequest.of(0, 100));
     }
 
     @Test
     void getStateOwner_ok() throws Exception {
-        when(bookingService.getStateBooker(1L, State.FUTURE, PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
+        when(bookingServiceRead.getStateBooker(1L, "FUTURE", PageRequest.of(0, 100))).thenReturn(List.of(bookingOutDto2));
         mvc.perform(get("/bookings")
                         .param("state", "FUTURE")
                         .param("from", "0")
@@ -119,6 +126,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].end", is(bookingOutDto2.getEnd().toString())))
                 .andExpect(jsonPath("$.[0].item.id", is(bookingOutDto2.getItem().getId()), Long.class))
                 .andExpect(jsonPath("$.[0].booker.id", is(bookingOutDto2.getBooker().getId()), Long.class));
-        verify(bookingService).getStateBooker(1L, State.FUTURE, PageRequest.of(0, 100));
+        verify(bookingServiceRead).getStateBooker(1L, "FUTURE", PageRequest.of(0, 100));
     }
 }

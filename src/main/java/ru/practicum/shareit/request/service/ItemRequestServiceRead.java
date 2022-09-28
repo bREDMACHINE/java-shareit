@@ -1,13 +1,11 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestOutDto;
 
 import java.util.List;
 
-public interface ItemRequestService {
-    ItemRequestDto addItemRequest(long userId, ItemRequestDto itemRequestDto);
+public interface ItemRequestServiceRead {
 
     List<ItemRequestOutDto> findRequestsByUserId(long userId);
 

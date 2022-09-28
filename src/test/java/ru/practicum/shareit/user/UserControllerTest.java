@@ -7,6 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.user.service.UserServiceCreate;
+import ru.practicum.shareit.user.service.UserServiceDelete;
+import ru.practicum.shareit.user.service.UserServiceRead;
+import ru.practicum.shareit.user.service.UserServiceUpdate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -23,7 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @MockBean
-    UserService userService;
+    UserServiceCreate userServiceCreate;
+    @MockBean
+    UserServiceUpdate userServiceUpdate;
+    @MockBean
+    UserServiceRead userServiceRead;
+    @MockBean
+    UserServiceDelete userServiceDelete;
 
     @Autowired
     private MockMvc mvc;
@@ -36,7 +46,7 @@ class UserControllerTest {
 
     @Test
     void addUser_ok() throws Exception {
-        when(userService.addUser(userDto1))
+        when(userServiceCreate.addUser(userDto1))
                 .thenReturn(userDto1);
 
         mvc.perform(post("/users")
@@ -48,12 +58,12 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto1.getName())))
                 .andExpect(jsonPath("$.email", is(userDto1.getEmail())));
-        verify(userService).addUser(userDto1);
+        verify(userServiceCreate).addUser(userDto1);
     }
 
     @Test
     void updateUser_ok() throws Exception {
-        when(userService.updateUser(1L, updateUserDto1))
+        when(userServiceUpdate.updateUser(1L, updateUserDto1))
                 .thenReturn(updateUserDto1);
 
         mvc.perform(patch("/users/1")
@@ -65,24 +75,24 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(updateUserDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(updateUserDto1.getName())))
                 .andExpect(jsonPath("$.email", is(updateUserDto1.getEmail())));
-        verify(userService).updateUser(1L, updateUserDto1);
+        verify(userServiceUpdate).updateUser(1L, updateUserDto1);
     }
 
     @Test
     void getUser_ok() throws Exception {
-        when(userService.getUser(1L)).thenReturn(userDto1);
+        when(userServiceRead.getUser(1L)).thenReturn(userDto1);
 
         mvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto1.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto1.getName())))
                 .andExpect(jsonPath("$.email", is(userDto1.getEmail())));
-        verify(userService).getUser(1L);
+        verify(userServiceRead).getUser(1L);
     }
 
     @Test
     void findAllUsers_ok() throws Exception {
-        when(userService.findAllUsers()).thenReturn(List.of(userDto1, userDto2));
+        when(userServiceRead.findAllUsers()).thenReturn(List.of(userDto1, userDto2));
 
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -90,13 +100,13 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[1].id", is(userDto2.getId()), Long.class))
                 .andExpect(jsonPath("$[1].name", is(userDto2.getName())))
                 .andExpect(jsonPath("$[1].email", is(userDto2.getEmail())));
-        verify(userService).findAllUsers();
+        verify(userServiceRead).findAllUsers();
     }
 
     @Test
     void deleteUser() throws Exception {
         mvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
-        verify(userService).deleteUser(1L);
+        verify(userServiceDelete).deleteUser(1L);
     }
 }
