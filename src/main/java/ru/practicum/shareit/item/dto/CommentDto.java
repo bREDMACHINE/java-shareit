@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -15,5 +16,6 @@ public class CommentDto {
     Long id;
     @NotBlank String text;
     String authorName;
+    @DateTimeFormat(pattern = "YYYY-MM-DDTHH:mm:ss")
     LocalDateTime created;
 }

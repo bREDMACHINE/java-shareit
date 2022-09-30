@@ -6,6 +6,7 @@ import org.hibernate.Hibernate;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -25,6 +26,7 @@ public class ItemRequest {
     @ManyToOne
     @JoinColumn(name = "requester_id")
     User requester;
+    LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {
